@@ -1,0 +1,20 @@
+node_modules/
+.next/
+out/
+coverage/
+.env*
+!.env.example
+*.tsbuildinfo
+src/generated/
+.DS_Store
+*.log
+
+.next-smoke/
+
+# Local editor and assistant configuration
+.vscode/
+.idea/
+.codex/
+.claude/
+AGENTS.md
+CLAUDE.md

@@ -1,0 +1,78 @@
+name: PR checks
+
+on:
+  pull_request:
+  push:
+    branches: [master, main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Quality, database, and browser checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    services:
+      postgres:
+        # Docker Official PostgreSQL 17 Alpine image via ECR Public; avoids Docker Hub pull limits.
+        image: public.ecr.aws/docker/library/postgres@sha256:b0f9560a2de083e2cc7382e75f808c7381a32852a7ec49117deedb300e552b24
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_DB: itinerary_test
+          # Disposable credentials for this isolated CI job, never application secrets.
+          POSTGRES_PASSWORD: ci-${{ github.run_id }}-${{ github.run_attempt }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d itinerary_test"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:ci-${{ github.run_id }}-${{ github.run_attempt }}@127.0.0.1:5432/itinerary_test
+      BETTER_AUTH_URL: http://localhost:3000
+      NEXT_TELEMETRY_DISABLED: '1'
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Generate temporary authentication secret
+        run: |
+          node --input-type=module <<'JS'
+          import { randomBytes } from 'node:crypto';
+          import { appendFileSync } from 'node:fs';
+          const secret = randomBytes(32).toString('hex');
+          console.log(`::add-mask::${secret}`);
+          appendFileSync(process.env.GITHUB_ENV, `BETTER_AUTH_SECRET=${secret}\n`);
+          JS
+      - run: npm ci
+      - run: npm run format:check
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - name: Apply database migrations
+        run: npm run db:deploy
+      - name: Verify migration preservation
+        run: node --env-file-if-exists=.env scripts/bookmark-migration-check.mjs
+      - name: Verify database constraints
+        run: docker exec -i ${{ job.services.postgres.id }} psql -U postgres -d itinerary_test -v ON_ERROR_STOP=1 < tests/database/constraints.sql
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: API integration and critical browser workflows
+        run: npm run test:e2e
+      - name: Production build
+        run: npm run build
+      - name: Production API and browser workflows
+        env:
+          ITINERARY_TEST_PRODUCTION: '1'
+        run: npm run test:e2e

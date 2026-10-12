@@ -1,0 +1,541 @@
+.reference-ui {
+  --accent: #2563eb;
+  --accent-strong: #1d4ed8;
+  --accent-soft: #eff6ff;
+  --canvas: #f6f7f9;
+  --ink: #182234;
+  --muted: #647084;
+  --line: #e5eaf1;
+  color: var(--ink);
+}
+.reference-ui.trip-detail-page {
+  background: var(--canvas);
+}
+.reference-ui .trip-head {
+  background: #fff;
+}
+.reference-ui .subtitle {
+  color: #5b687c;
+}
+.reference-ui .button:not(.danger),
+.reference-ui .fab,
+.reference-ui .comment-form .icon,
+.reference-ui .new-trip-pill {
+  background: var(--accent);
+  color: #fff;
+}
+.reference-ui .button:not(.danger):hover,
+.reference-ui .fab:hover,
+.reference-ui .comment-form .icon:hover,
+.reference-ui .new-trip-pill:hover {
+  background: var(--accent-strong);
+}
+.reference-ui .fab {
+  box-shadow: 0 5px 18px #2563eb28;
+}
+.reference-ui .icon,
+.reference-ui .button,
+.reference-ui .fab,
+.reference-ui .text-button,
+.reference-ui .action,
+.reference-ui .trip-list-button,
+.reference-ui .date,
+.reference-ui .inline-value {
+  transition:
+    background-color 160ms ease,
+    color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+.reference-ui .button:active,
+.reference-ui .fab:active {
+  transform: scale(0.98);
+}
+.reference-ui .icon:hover,
+.reference-ui .subtle:hover,
+.reference-ui .action:hover,
+.reference-ui .inline-value:hover {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+.reference-ui .text-button,
+.reference-ui .bookmarks-icon,
+.reference-ui .view-more {
+  color: var(--accent-strong);
+}
+.reference-ui .avatar,
+.reference-ui .initial {
+  background: #edf2fc;
+  color: #476293;
+}
+.reference-ui button:focus-visible,
+.reference-ui a:focus-visible,
+.reference-ui summary:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+.reference-ui input:focus-visible,
+.reference-ui textarea:focus-visible,
+.reference-ui select:focus-visible {
+  border-color: #8cb2fb;
+  box-shadow: 0 0 0 3px #2563eb12;
+}
+.reference-ui input[type='checkbox'] {
+  accent-color: var(--accent);
+}
+.reference-ui .date[aria-selected='true'] .number {
+  background: var(--accent);
+  box-shadow: 0 3px 9px #2563eb24;
+}
+.reference-ui .date[aria-selected='true'] .weekday {
+  color: var(--accent-strong);
+}
+.reference-ui .date:hover {
+  background: var(--accent-soft);
+}
+.reference-ui .date .number {
+  transition:
+    background-color 180ms ease,
+    box-shadow 180ms ease;
+}
+.reference-ui .main {
+  padding-top: 34px;
+}
+.reference-ui .day-heading {
+  margin-bottom: 23px;
+}
+.reference-ui .day-heading h2 {
+  font-size: 27px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.reference-ui .day-heading .eyebrow {
+  color: var(--accent-strong);
+  font-size: 11px;
+  letter-spacing: 0.09em;
+}
+.reference-ui .day-meta {
+  color: #6a778a;
+}
+.reference-ui .activity {
+  margin-bottom: 17px;
+  position: relative;
+}
+.reference-ui .activity-time {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5e6e85;
+  min-height: 22px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 7px;
+}
+.reference-ui .card {
+  border: 1px solid #e7ebf1;
+  box-shadow: 0 1px 2px #18223402;
+  overflow: visible;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+.reference-ui .card:hover {
+  border-color: #d7e1f0;
+  box-shadow: 0 3px 12px #18223406;
+}
+.reference-ui .card-top {
+  position: relative;
+  display: block;
+}
+.reference-ui .card-toggle {
+  padding: 20px 22px 18px;
+  min-height: 96px;
+}
+.reference-ui .card-toggle:hover {
+  background: transparent;
+}
+.reference-ui .card-toggle h3 {
+  font-size: 17px;
+  line-height: 1.45;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  color: var(--ink);
+  padding-right: 108px;
+  margin-bottom: 6px;
+}
+.reference-ui .card-title-toggle,
+.reference-ui .inline-value {
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  border-radius: 5px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.reference-ui .card-title-inline {
+  width: 100%;
+}
+.reference-ui .card-toggle .preview {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #69758a;
+  text-align: left;
+  width: 100%;
+}
+.reference-ui .card-controls {
+  position: absolute;
+  right: 12px;
+  top: 14px;
+  padding: 0;
+  gap: 1px;
+}
+.reference-ui .card-controls .icon {
+  width: 32px;
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: 6px;
+  color: #8c99ac;
+}
+.reference-ui .card-controls .chevron {
+  padding: 0;
+  transition: transform 180ms ease;
+  display: flex;
+}
+.reference-ui .card-controls .icon:hover {
+  color: var(--accent-strong);
+}
+.reference-ui .desktop-drag-handle {
+  cursor: grab;
+  touch-action: none;
+}
+.reference-ui .desktop-drag-handle:active {
+  cursor: grabbing;
+}
+.reference-ui .card-actions-menu {
+  position: relative;
+}
+.reference-ui .card-action-options {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  min-width: 200px;
+  max-width: min(290px, calc(100vw - 70px));
+  z-index: 4;
+  padding: 6px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 8px 30px #18223414;
+  animation: ui-menu-in 160ms ease both;
+}
+.reference-ui .card-action-options button {
+  display: block;
+  width: 100%;
+  padding: 9px 10px;
+  min-height: 38px;
+  border-radius: 6px;
+  text-align: left;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+.reference-ui .card-action-options button:hover {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+}
+.reference-ui .card-action-options .danger-text {
+  color: #b73b42;
+}
+.reference-ui .activity:has(.card-action-options),
+.reference-ui .activity:focus-within {
+  z-index: 3;
+}
+.reference-ui .activity.is-dragging {
+  z-index: 4;
+}
+.reference-ui .is-dragging .card {
+  border-color: #8cb2fb;
+  box-shadow: 0 8px 24px #2563eb16;
+}
+.reference-ui .drop-before::before,
+.reference-ui .drop-after::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--accent);
+  pointer-events: none;
+}
+.reference-ui .drop-before::before {
+  top: -7px;
+}
+.reference-ui .drop-after::after {
+  bottom: -7px;
+}
+.reference-ui .card-detail {
+  padding: 0;
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows 180ms ease,
+    opacity 160ms ease,
+    visibility 180ms;
+}
+.reference-ui .expanded > .card-detail {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+}
+.reference-ui .card-detail-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+.reference-ui .card-detail-body {
+  padding: 0 22px 20px;
+}
+.reference-ui .action-row {
+  padding-top: 2px;
+  padding-bottom: 2px;
+}
+.reference-ui .action[aria-pressed='true'] {
+  background: #eaf1ff;
+  color: var(--accent-strong);
+}
+.reference-ui .action[aria-pressed='true'] svg {
+  fill: var(--accent);
+  stroke: var(--accent);
+}
+.reference-ui .action[aria-busy='true'] {
+  opacity: 0.75;
+}
+.reference-ui .comment-form:focus-within {
+  border-color: #9dbbf5;
+  box-shadow: 0 0 0 3px #2563eb0b;
+}
+.reference-ui .comment.is-pending {
+  opacity: 0.7;
+}
+.reference-ui .inline-editor {
+  width: 100%;
+  font-size: 14px;
+  padding: 3px 0;
+}
+.reference-ui .inline-editor.card-title-inline {
+  font-size: 17px;
+  font-weight: 600;
+  padding-right: 108px;
+}
+.reference-ui .bookmark .card-toggle h3,
+.reference-ui .bookmark .inline-editor.card-title-inline {
+  padding-right: 38px;
+}
+.reference-ui .inline-editor input,
+.reference-ui .inline-editor textarea {
+  min-height: 34px;
+  width: 100%;
+  font: inherit;
+  color: var(--ink);
+  padding: 7px 9px;
+  border: 1px solid #b6cdf8;
+  background: #fafdff;
+  border-radius: 7px;
+  resize: vertical;
+}
+.reference-ui .dialog-footer:has(.form-update-hint) {
+  flex-wrap: wrap;
+}
+.reference-ui .form-update-hint {
+  flex-basis: 100%;
+  padding: 12px;
+  border-radius: 7px;
+  background: var(--accent-soft);
+  color: #53657f;
+  font-size: 13px;
+}
+.reference-ui .form-update-hint p {
+  margin-bottom: 6px;
+}
+.reference-ui .inline-editor-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 4px;
+}
+.reference-ui .inline-editor-actions .icon {
+  width: 28px;
+  min-width: 28px;
+  min-height: 28px;
+  color: var(--accent-strong);
+}
+.reference-ui .inline-save-status {
+  font-size: 11px;
+  line-height: 1.4;
+  font-weight: 400;
+  color: var(--muted);
+  margin-right: auto;
+}
+.reference-ui .inline-time.inline-value {
+  padding: 2px 4px;
+  margin-left: -4px;
+}
+.reference-ui .inline-editor.inline-time {
+  max-width: 185px;
+  font-size: 12px;
+}
+.reference-ui .inline-placeholder {
+  color: #8290a4;
+}
+.reference-ui .bookmarks-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  padding: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    grid-template-rows 180ms ease,
+    opacity 160ms ease,
+    visibility 180ms;
+}
+.reference-ui .bookmarks-content[data-open='true'] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  visibility: visible;
+}
+.reference-ui .bookmarks-content-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+.reference-ui .bookmarks-collection .bookmarks-content-body {
+  padding: 8px 16px 16px;
+  background: #eef1f6;
+}
+.reference-ui .bookmarks-chevron {
+  transition: transform 180ms ease;
+}
+.reference-ui .save-indicator {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: block;
+  min-height: 0;
+  color: var(--muted);
+  font-size: 11px;
+}
+.reference-ui .itinerary-day-content {
+  position: relative;
+}
+.reference-ui .save-indicator:empty {
+  display: none;
+}
+.reference-ui .save-error,
+.reference-ui .discussion-feedback {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 8px 0 14px;
+  font-size: 13px;
+}
+.reference-ui .save-error .form-error,
+.reference-ui .discussion-feedback .form-error {
+  margin: 0;
+}
+.reference-ui .ui-dialog[open],
+.reference-ui .people-popover:not([hidden]),
+.reference-ui .quick-add-options {
+  animation: ui-menu-in 180ms ease both;
+}
+.reference-ui .ui-dialog[open]::backdrop {
+  animation: ui-backdrop-in 180ms ease both;
+  background: #17243b38;
+}
+@keyframes ui-menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes ui-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@media (max-width: 600px) {
+  .reference-ui .main {
+    padding-top: 27px;
+  }
+  .reference-ui .day-heading h2 {
+    font-size: 25px;
+  }
+  .reference-ui .card-toggle {
+    padding: 17px 18px 15px;
+    min-height: 96px;
+  }
+  .reference-ui .card-toggle h3 {
+    padding-right: 65px;
+    font-size: 16px;
+  }
+  .reference-ui .card-controls {
+    top: 11px;
+    right: 9px;
+  }
+  .reference-ui .desktop-drag-handle {
+    display: none;
+  }
+  .reference-ui .card-detail-body {
+    padding: 0 18px 17px;
+  }
+  .reference-ui .inline-editor.card-title-inline {
+    padding-right: 65px;
+    font-size: 16px;
+  }
+  .reference-ui .card-action-options {
+    min-width: 180px;
+  }
+  .reference-ui .bookmarks-collection .bookmarks-content-body {
+    padding: 8px 12px 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reference-ui *,
+  .reference-ui *::before,
+  .reference-ui *::after,
+  .reference-ui dialog::backdrop {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.edit-conflict {
+  margin: 16px 0;
+  padding: 14px;
+  border: 1px solid #b9c8e0;
+  border-radius: 8px;
+  background: #f6f9ff;
+  font-size: 0.85rem;
+}
+.edit-conflict pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+  margin: 6px 0 12px;
+}
+.edit-conflict dt {
+  font-weight: 600;
+}
+.edit-conflict dd {
+  margin: 8px 0 18px;
+}
+.edit-conflict .row {
+  flex-wrap: wrap;
+}

@@ -1,0 +1,324 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TripRole {
+  owner
+  editor
+  viewer
+}
+
+enum PlaceCategory {
+  restaurant
+  cafe
+  bar
+  attraction
+  hotel
+  activity
+  other
+}
+
+model User {
+  comments      Comment[]
+  votes         Vote[]
+  activityLogs  ActivityLog[]
+  id            String          @id @default(uuid()) @db.Uuid
+  email         String          @unique @db.VarChar(320)
+  name          String          @db.VarChar(120)
+  emailVerified Boolean         @default(false)
+  sessions      Session[]
+  accounts      Account[]
+  avatarUrl     String?
+  createdAt     DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime        @updatedAt @db.Timestamptz(3)
+  trips         Trip[]
+  memberships   TripMember[]
+  savedPlaces   Bookmark[]
+  items         ItineraryItem[]
+}
+
+model Trip {
+  comments         Comment[]
+  votes            Vote[]
+  activityLogs     ActivityLog[]
+  detailsVersion   Int              @default(0)
+  itineraryVersion Int              @default(0)
+  id               String           @id @default(uuid()) @db.Uuid
+  name             String           @db.VarChar(160)
+  description      String?
+  startDate        DateTime?        @db.Date
+  endDate          DateTime?        @db.Date
+  link             String?         @db.VarChar(4096)
+  links            Json            @default("[]")
+  timezone         String           @db.VarChar(100)
+  createdBy        String           @db.Uuid
+  creator          User             @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+  createdAt        DateTime         @default(now()) @db.Timestamptz(3)
+  updatedAt        DateTime         @updatedAt @db.Timestamptz(3)
+  members          TripMember[]
+  savedPlaces      Bookmark[]
+  days             ItineraryDay[]
+  readLink         TripReadLink?
+  invitations      TripInvitation[]
+  collections      Collection[]
+
+  @@index([createdBy])
+}
+
+model TripMember {
+  userId   String   @db.Uuid
+  tripId   String   @db.Uuid
+  role     TripRole @default(viewer)
+  joinedAt DateTime @default(now()) @db.Timestamptz(3)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Restrict)
+  trip     Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@id([tripId, userId])
+  @@index([userId, tripId])
+}
+
+model Place {
+  id          String          @id @default(uuid()) @db.Uuid
+  name        String          @db.VarChar(200)
+  category    PlaceCategory
+  address     String?
+  latitude    Decimal?        @db.Decimal(9, 6)
+  longitude   Decimal?        @db.Decimal(9, 6)
+  metadata    Json?
+  createdAt   DateTime        @default(now()) @db.Timestamptz(3)
+  updatedAt   DateTime        @updatedAt @db.Timestamptz(3)
+  savedPlaces Bookmark[]
+  items       ItineraryItem[]
+}
+
+model Bookmark {
+  version     Int                  @default(0)
+  comments    Comment[]
+  votes       Vote[]
+  activities  ItineraryItem[]
+  title       String               @db.VarChar(200)
+  url         String?              @db.VarChar(4096)
+  category    PlaceCategory        @default(other)
+  updatedAt   DateTime             @default(now()) @updatedAt @db.Timestamptz(3)
+  collections BookmarkCollection[]
+  id          String               @id @default(uuid()) @db.Uuid
+  tripId      String               @db.Uuid
+  placeId     String?              @db.Uuid
+  savedBy     String               @db.Uuid
+  notes       String?
+  createdAt   DateTime             @default(now()) @db.Timestamptz(3)
+  trip        Trip                 @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  place       Place?               @relation(fields: [placeId], references: [id], onDelete: Restrict)
+  saver       User                 @relation(fields: [savedBy], references: [id], onDelete: Restrict)
+
+  @@unique([id, tripId])
+  @@unique([tripId, placeId])
+  @@index([tripId, category, id])
+  @@index([tripId, createdAt, id])
+  @@index([placeId])
+  @@index([savedBy])
+  @@map("SavedPlace")
+}
+
+model ItineraryDay {
+  id        String          @id @default(uuid()) @db.Uuid
+  tripId    String          @db.Uuid
+  date      DateTime        @db.Date
+  createdAt DateTime        @default(now()) @db.Timestamptz(3)
+  trip      Trip            @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  items     ItineraryItem[]
+
+  @@unique([id, tripId])
+  @@unique([tripId, date])
+}
+
+model ItineraryItem {
+  tripId         String       @db.Uuid
+  comments       Comment[]
+  votes          Vote[]
+  bookmarkId     String?      @db.Uuid
+  bookmark       Bookmark?    @relation(fields: [bookmarkId], references: [id], onDelete: SetNull)
+  url            String?      @db.VarChar(4096)
+  id             String       @id @default(uuid()) @db.Uuid
+  itineraryDayId String       @db.Uuid
+  placeId        String?      @db.Uuid
+  title          String       @db.VarChar(200)
+  description    String?
+  startTime      DateTime?    @db.Timestamptz(3)
+  endTime        DateTime?    @db.Timestamptz(3)
+  position       Int
+  notes          String?
+  createdBy      String       @db.Uuid
+  createdAt      DateTime     @default(now()) @db.Timestamptz(3)
+  updatedAt      DateTime     @updatedAt @db.Timestamptz(3)
+  day            ItineraryDay @relation(fields: [itineraryDayId, tripId], references: [id, tripId], onDelete: Cascade)
+  place          Place?       @relation(fields: [placeId], references: [id], onDelete: SetNull)
+  creator        User         @relation(fields: [createdBy], references: [id], onDelete: Restrict)
+
+  @@unique([id, tripId])
+  @@unique([itineraryDayId, position])
+  @@index([bookmarkId])
+  @@index([placeId])
+  @@index([createdBy])
+}
+
+model Session {
+  id        String   @id @default(uuid()) @db.Uuid
+  token     String   @unique
+  expiresAt DateTime @db.Timestamptz(3)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt DateTime @updatedAt @db.Timestamptz(3)
+  ipAddress String?
+  userAgent String?
+  userId    String   @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Account {
+  id                    String    @id @default(uuid()) @db.Uuid
+  accountId             String
+  providerId            String
+  userId                String    @db.Uuid
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime? @db.Timestamptz(3)
+  refreshTokenExpiresAt DateTime? @db.Timestamptz(3)
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt             DateTime  @updatedAt @db.Timestamptz(3)
+
+  @@unique([providerId, accountId])
+  @@index([userId])
+}
+
+model Verification {
+  id         String   @id @default(uuid()) @db.Uuid
+  identifier String
+  value      String
+  expiresAt  DateTime @db.Timestamptz(3)
+  createdAt  DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime @updatedAt @db.Timestamptz(3)
+
+  @@index([identifier])
+}
+
+model RateLimit {
+  id          String @id @default(uuid()) @db.Uuid
+  key         String @unique
+  count       Int
+  lastRequest BigInt
+
+  @@index([lastRequest])
+}
+
+model TripInvitation {
+  id         String    @id @default(uuid()) @db.Uuid
+  tripId     String    @db.Uuid
+  email      String    @db.VarChar(320)
+  role       TripRole
+  expiresAt  DateTime  @db.Timestamptz(3)
+  acceptedAt DateTime? @db.Timestamptz(3)
+  revokedAt  DateTime? @db.Timestamptz(3)
+  createdAt  DateTime  @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime  @updatedAt @db.Timestamptz(3)
+  trip       Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@unique([tripId, email])
+  @@index([email, expiresAt])
+}
+
+model Collection {
+  id        String               @id @default(uuid()) @db.Uuid
+  tripId    String               @db.Uuid
+  name      String               @db.VarChar(80)
+  createdAt DateTime             @default(now()) @db.Timestamptz(3)
+  trip      Trip                 @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  bookmarks BookmarkCollection[]
+
+  @@unique([id, tripId])
+  @@unique([tripId, name])
+}
+
+model BookmarkCollection {
+  tripId       String     @db.Uuid
+  bookmarkId   String     @db.Uuid
+  collectionId String     @db.Uuid
+  bookmark     Bookmark   @relation(fields: [bookmarkId, tripId], references: [id, tripId], onDelete: Cascade)
+  collection   Collection @relation(fields: [collectionId, tripId], references: [id, tripId], onDelete: Cascade)
+
+  @@id([bookmarkId, collectionId])
+  @@index([collectionId, tripId])
+}
+
+model Comment {
+  id         String         @id @default(uuid()) @db.Uuid
+  tripId     String         @db.Uuid
+  userId     String         @db.Uuid
+  bookmarkId String?        @db.Uuid
+  activityId String?        @db.Uuid
+  body       String         @db.VarChar(3000)
+  version    Int            @default(0)
+  createdAt  DateTime       @default(now()) @db.Timestamptz(3)
+  updatedAt  DateTime       @updatedAt @db.Timestamptz(3)
+  trip       Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  author     User           @relation(fields: [userId], references: [id], onDelete: Restrict)
+  bookmark   Bookmark?      @relation(fields: [bookmarkId, tripId], references: [id, tripId], onDelete: Cascade)
+  activity   ItineraryItem? @relation(fields: [activityId, tripId], references: [id, tripId], onDelete: Cascade)
+
+  @@index([tripId, bookmarkId, createdAt, id])
+  @@index([tripId, activityId, createdAt, id])
+  @@index([userId])
+}
+
+model Vote {
+  id         String         @id @default(uuid()) @db.Uuid
+  tripId     String         @db.Uuid
+  userId     String         @db.Uuid
+  bookmarkId String?        @db.Uuid
+  activityId String?        @db.Uuid
+  createdAt  DateTime       @default(now()) @db.Timestamptz(3)
+  trip       Trip           @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  voter      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bookmark   Bookmark?      @relation(fields: [bookmarkId, tripId], references: [id, tripId], onDelete: Cascade)
+  activity   ItineraryItem? @relation(fields: [activityId, tripId], references: [id, tripId], onDelete: Cascade)
+
+  @@unique([bookmarkId, userId])
+  @@unique([activityId, userId])
+  @@index([tripId, bookmarkId])
+  @@index([tripId, activityId])
+  @@index([userId])
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  tripId    String   @db.Uuid
+  actorId   String?  @db.Uuid
+  action    String   @db.VarChar(80)
+  entityId  String   @db.Uuid
+  title     String?  @db.VarChar(200)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  trip      Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  actor     User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([tripId, createdAt, id])
+  @@index([actorId])
+}
+
+model TripReadLink {
+  id String @id @default(uuid()) @db.Uuid
+  tripId String @unique @db.Uuid
+  tokenHash String @unique @db.VarChar(64)
+  createdAt DateTime @default(now()) @db.Timestamptz(3)
+  expiresAt DateTime @db.Timestamptz(3)
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+}

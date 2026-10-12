@@ -1,0 +1,66 @@
+-- Run only against a local/test database. All fixtures are rolled back.
+\set ON_ERROR_STOP on
+BEGIN;
+INSERT INTO "User" (id, email, name, "updatedAt") VALUES
+ ('00000000-0000-4000-8000-000000000001', 'foundation-owner@example.test', 'Owner', now()),
+ ('00000000-0000-4000-8000-000000000002', 'foundation-editor@example.test', 'Editor', now());
+INSERT INTO "Trip" (id, name, timezone, "createdBy", "updatedAt") VALUES
+ ('00000000-0000-4000-8000-000000000003', 'Test trip', 'America/Denver', '00000000-0000-4000-8000-000000000001', now());
+INSERT INTO "TripMember" ("tripId", "userId", role) VALUES
+ ('00000000-0000-4000-8000-000000000003','00000000-0000-4000-8000-000000000001','owner');
+DO $$ BEGIN
+ BEGIN
+  INSERT INTO "TripMember" ("tripId", "userId", role) VALUES
+   ('00000000-0000-4000-8000-000000000003','00000000-0000-4000-8000-000000000001','viewer');
+  RAISE EXCEPTION 'Duplicate membership was accepted';
+ EXCEPTION WHEN unique_violation THEN NULL; END;
+ BEGIN
+  INSERT INTO "TripMember" ("tripId", "userId", role) VALUES
+   ('00000000-0000-4000-8000-000000000003','00000000-0000-4000-8000-000000000002','owner');
+  RAISE EXCEPTION 'Second owner was accepted';
+ EXCEPTION WHEN unique_violation THEN NULL; END;
+ BEGIN
+  UPDATE "Trip" SET "startDate" = '2026-09-20', "endDate" = '2026-09-19' WHERE id = '00000000-0000-4000-8000-000000000003';
+  RAISE EXCEPTION 'Invalid dates were accepted';
+ EXCEPTION WHEN check_violation THEN NULL; END;
+ BEGIN
+  DELETE FROM "User" WHERE id = '00000000-0000-4000-8000-000000000001';
+  RAISE EXCEPTION 'Referenced creator was deleted';
+ EXCEPTION WHEN foreign_key_violation THEN NULL; END;
+END $$;
+INSERT INTO "Place" (id, name, category, "updatedAt") VALUES
+ ('00000000-0000-4000-8000-000000000004', 'Cafe', 'cafe', now());
+INSERT INTO "SavedPlace" (title, id, "tripId", "placeId", "savedBy") VALUES
+ ('Cafe', '00000000-0000-4000-8000-000000000005','00000000-0000-4000-8000-000000000003','00000000-0000-4000-8000-000000000004','00000000-0000-4000-8000-000000000001');
+INSERT INTO "ItineraryDay" (id, "tripId", date) VALUES
+ ('00000000-0000-4000-8000-000000000006','00000000-0000-4000-8000-000000000003','2026-09-20');
+INSERT INTO "ItineraryItem" ("tripId", id, "itineraryDayId", "placeId", title, position, "createdBy", "updatedAt") VALUES
+ ('00000000-0000-4000-8000-000000000003','00000000-0000-4000-8000-000000000007','00000000-0000-4000-8000-000000000006','00000000-0000-4000-8000-000000000004','Breakfast',0,'00000000-0000-4000-8000-000000000001',now());
+DO $$ BEGIN
+ BEGIN
+  UPDATE "Place" SET latitude = 91, longitude = 0 WHERE id = '00000000-0000-4000-8000-000000000004';
+  RAISE EXCEPTION 'Invalid coordinates were accepted';
+ EXCEPTION WHEN check_violation THEN NULL; END;
+ BEGIN
+  INSERT INTO "SavedPlace" (title, id, "tripId", "placeId", "savedBy") VALUES
+   ('Cafe', '00000000-0000-4000-8000-000000000008','00000000-0000-4000-8000-000000000003','00000000-0000-4000-8000-000000000004','00000000-0000-4000-8000-000000000002');
+  RAISE EXCEPTION 'Duplicate saved place was accepted';
+ EXCEPTION WHEN unique_violation THEN NULL; END;
+ BEGIN
+  UPDATE "ItineraryItem" SET position = -1 WHERE id = '00000000-0000-4000-8000-000000000007';
+  RAISE EXCEPTION 'Negative position was accepted';
+ EXCEPTION WHEN check_violation THEN NULL; END;
+END $$;
+DELETE FROM "Trip" WHERE id = '00000000-0000-4000-8000-000000000003';
+DO $$ BEGIN
+ IF EXISTS (SELECT FROM "TripMember" WHERE "tripId" = '00000000-0000-4000-8000-000000000003')
+ OR EXISTS (SELECT FROM "SavedPlace" WHERE id = '00000000-0000-4000-8000-000000000005')
+ OR EXISTS (SELECT FROM "ItineraryDay" WHERE id = '00000000-0000-4000-8000-000000000006')
+ OR EXISTS (SELECT FROM "ItineraryItem" WHERE id = '00000000-0000-4000-8000-000000000007') THEN
+  RAISE EXCEPTION 'Trip children did not cascade';
+ END IF;
+ IF NOT EXISTS (SELECT FROM "Place" WHERE id = '00000000-0000-4000-8000-000000000004') THEN
+  RAISE EXCEPTION 'Shared place was deleted';
+ END IF;
+END $$;
+ROLLBACK;
