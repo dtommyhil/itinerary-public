@@ -1,6 +1,6 @@
 # itinerary
 
-A shared workspace for planning group trips. Collect ideas, build a daily itinerary, and make plans together without losing everything in a group chat.
+A shared workspace for planning group trips. Collect ideas, build a daily itinerary, and organize plans together so that the trip finally makes it out of the group chat.
 
 ![Trip itinerary on desktop](docs/screenshots/desktop.png)
 
